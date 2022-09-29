@@ -9,7 +9,7 @@ public class BinaryToCsvConverter
         BinaryReader binaryReader = new BinaryReader(new FileStream(filename, FileMode.Open));
         StreamWriter streamWriter = new StreamWriter(outputFile);
         streamWriter.Write(binaryReader.ReadInt32());
-        while (binaryReader.PeekChar() != -1)
+        while (binaryReader.BaseStream.Position != binaryReader.BaseStream.Length)
         {
             streamWriter.Write(",");
             streamWriter.Write(binaryReader.ReadInt32());
