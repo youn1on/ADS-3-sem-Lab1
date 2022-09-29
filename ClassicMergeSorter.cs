@@ -1,8 +1,8 @@
 ﻿namespace Lab1;
 
-public class MergeSort
+public class ClassicMergeSorter : MergeSorter
 {
-    public static int Divide(string initialFile, int partSize, string firstTemporaryFile = "temp1",
+    protected override void Divide(string initialFile, int partSize, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2")
     {
         BinaryReader binaryReader = new BinaryReader(new FileStream(initialFile, FileMode.Open));
@@ -16,7 +16,7 @@ public class MergeSort
 
         int counter = 0;
 
-        while (binaryReader.PeekChar() > -1)
+        while (!EndOfStream(binaryReader))
         {
             binaryWriters[counter/partSize%2].Write(binaryReader.ReadInt32());
             counter++;
@@ -27,11 +27,10 @@ public class MergeSort
         {
             writer.Close();
         }
-
-        return counter;
+        
     }
 
-    public static void Merge(string resultingFile, int partSize, int numberOfElements, string firstTemporaryFile = "temp1",
+    protected override void Merge(string resultingFile, int partSize, int numberOfElements, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2")
     {
         BinaryWriter binaryWriter = new BinaryWriter(new FileStream(resultingFile,
@@ -41,7 +40,7 @@ public class MergeSort
 
         int a, b, ctrA, ctrB;
 
-        while (secondBinaryReader.PeekChar() > -1)
+        while (!EndOfStream(secondBinaryReader))
         {
             ctrA = 0;
             ctrB = 0;
@@ -57,32 +56,42 @@ public class MergeSort
                     {
                         a = firstBinaryReader.ReadInt32();
                     }
-                    else break;
+                    else
+                    {
+                        binaryWriter.Write(b);
+                        ctrB++;
+                        while (ctrB<partSize)
+                        {
+                            binaryWriter.Write(secondBinaryReader.ReadInt32());
+                            ctrB++;
+                        }
+                        break;
+                    }
                 }
                 else
                 {
                     binaryWriter.Write(b);
                     ctrB++;
-                    if (ctrB < partSize && secondBinaryReader.PeekChar() > -1)
+                    if (ctrB < partSize && !EndOfStream(secondBinaryReader))
                     {
                         b = secondBinaryReader.ReadInt32();
                     }
-                    else break;
+                    else
+                    {
+                        binaryWriter.Write(a);
+                        ctrA++;
+                        while (ctrA < partSize)
+                        {
+                            binaryWriter.Write(firstBinaryReader.ReadInt32());
+                            ctrA++;
+                        }
+                        break;
+                    }
                 }
-            }
-
-            for (int i = ctrA; i < partSize; i++)
-            {
-                binaryWriter.Write(firstBinaryReader.ReadInt32());
-            }
-            
-            for (int i = ctrB; i < partSize && secondBinaryReader.PeekChar() > -1; i++)
-            {
-                binaryWriter.Write(secondBinaryReader.ReadInt32());
             }
         }
 
-        while (firstBinaryReader.PeekChar() > -1)
+        while (!EndOfStream(firstBinaryReader))
         {
             binaryWriter.Write(firstBinaryReader.ReadInt32());
         }
@@ -90,10 +99,11 @@ public class MergeSort
         binaryWriter.Close();
         firstBinaryReader.Close();
         secondBinaryReader.Close();
-
+        File.Delete(firstTemporaryFile);
+        File.Delete(secondTemporaryFile);
     }
 
-    public static void Sort(string filename, int elemNumber)
+    public override void Sort(string filename, int elemNumber)
     {
         for (int i = 1; i < elemNumber; i*=2)
         {
