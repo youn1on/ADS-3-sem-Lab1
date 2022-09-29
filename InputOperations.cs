@@ -9,13 +9,15 @@ public class InputOperations
         {
             Console.WriteLine("Enter your filepath");
             string filepath = Console.ReadLine();
-            if (File.Exists(filepath)) return filepath;
+            if (File.Exists(filepath) && ValidateFile(filepath)) return filepath;
             Console.WriteLine("Incorrect filepath");
         }
     }
 
-    private static bool ValidateFile()
+    private static bool ValidateFile(string filename)
     {
-        return true;
+        FileInfo info = new FileInfo(filename);
+        InputtedFileSize = (int) info.Length / 4;
+        return info.Length % 4 == 0;
     }
 }
