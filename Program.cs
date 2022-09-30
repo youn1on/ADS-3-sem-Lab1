@@ -9,7 +9,7 @@ namespace Lab1
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            FileGenerator.GenerateFile(200);
+            FileGenerator.GenerateFile(1024);
             Console.WriteLine($"[File generated: {sw.ElapsedMilliseconds} ms]");
             sw.Restart();
             BinaryFileInspector.Inspect("generated", "input.csv", 100);

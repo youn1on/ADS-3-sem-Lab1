@@ -4,7 +4,7 @@ namespace Lab1;
 
 public class OptimizedMergeSorter : MergeSorter
 {
-    private int _maxArraySize = 1024 * 1024 * 50 / 4;//Array.MaxLength/4;//1024;
+    private int _maxArraySize = 1024 * 1024 * 50 / 4;
     protected override void Divide(string initialFile, int partSize, long elemNum, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2")
     {
@@ -48,8 +48,8 @@ public class OptimizedMergeSorter : MergeSorter
         {
             ctrA = 0;
             ctrB = 0;
-            FillQueue(firstBinaryReader, ref a);
-            FillQueue(secondBinaryReader, ref b);
+            FillQueue(firstBinaryReader, ref a, partSize);
+            FillQueue(secondBinaryReader, ref b, partSize);
             while (true)
             {
                 if (a.Peek() <= b.Peek())
@@ -60,7 +60,7 @@ public class OptimizedMergeSorter : MergeSorter
                     {
                         if (ctrA < partSize)
                         {
-                            FillQueue(firstBinaryReader, ref a);
+                            FillQueue(firstBinaryReader, ref a, partSize-ctrA);
                         }
                         else
                         {
@@ -71,7 +71,7 @@ public class OptimizedMergeSorter : MergeSorter
                             }
                             while (ctrB < partSize && !EndOfStream(secondBinaryReader))
                             {
-                                FillQueue(secondBinaryReader, ref b);
+                                FillQueue(secondBinaryReader, ref b, partSize-ctrB);
                                 while (b.Count > 0)
                                 {
                                     binaryWriter.Write(b.Dequeue());
@@ -90,7 +90,7 @@ public class OptimizedMergeSorter : MergeSorter
                     {
                         if (ctrB < partSize && !EndOfStream(secondBinaryReader))
                         {
-                            FillQueue(secondBinaryReader, ref b);
+                            FillQueue(secondBinaryReader, ref b, partSize-ctrB);
                         }
                         else
                         {
@@ -101,7 +101,7 @@ public class OptimizedMergeSorter : MergeSorter
                             }
                             while (ctrA < partSize)
                             {
-                                FillQueue(firstBinaryReader, ref a);
+                                FillQueue(firstBinaryReader, ref a, partSize-ctrA);
                                 while (a.Count > 0)
                                 {
                                     binaryWriter.Write(a.Dequeue());
@@ -172,10 +172,10 @@ public class OptimizedMergeSorter : MergeSorter
         Console.WriteLine("Pre-sorting is done!");
     }
 
-    private void FillQueue(BinaryReader br, ref Queue<int> queue)
+    private void FillQueue(BinaryReader br, ref Queue<int> queue, int wantedSize)
     {
-        int count = (int)(br.BaseStream.Length - br.BaseStream.Length);
-        byte[] binData = br.ReadBytes(count < _maxArraySize * 4 ? count : _maxArraySize * 4);
+        int count = (int)(br.BaseStream.Length - br.BaseStream.Position);
+        byte[] binData = br.ReadBytes(Math.Min(Math.Min(wantedSize*4, count), _maxArraySize*4));
         for (int i = 0; i < binData.Length/4; i++)
         {
             queue.Enqueue(BitConverter.ToInt32(binData[(i*4)..((i+1)*4)]));
