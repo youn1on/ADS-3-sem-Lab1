@@ -8,7 +8,7 @@ public abstract class MergeSorter
     protected virtual void Merge(string resultingFile, int partSize, int numberOfElements, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2") {}
     
-    protected virtual void Divide(string initialFile, int partSize, string firstTemporaryFile = "temp1",
+    protected virtual void Divide(string initialFile, int partSize, long elemNum, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2") {}
     
     public virtual void Sort(string filename, int elemNumber){}

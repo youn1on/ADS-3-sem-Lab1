@@ -2,7 +2,7 @@
 
 public class ClassicMergeSorter : MergeSorter
 {
-    protected override void Divide(string initialFile, int partSize, string firstTemporaryFile = "temp1",
+    protected override void Divide(string initialFile, int partSize, long elemNum, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2")
     {
         BinaryReader binaryReader = new BinaryReader(new FileStream(initialFile, FileMode.Open));
@@ -107,7 +107,7 @@ public class ClassicMergeSorter : MergeSorter
     {
         for (int i = 1; i < elemNumber; i*=2)
         {
-            Divide(filename, i);
+            Divide(filename, i, elemNumber);
             Merge(filename, i, elemNumber);
         }
     }
