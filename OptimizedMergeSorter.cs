@@ -42,39 +42,43 @@ public class OptimizedMergeSorter : MergeSorter
         BinaryReader secondBinaryReader = new BinaryReader(new FileStream(secondTemporaryFile, FileMode.Open));
 
         int ctrA, ctrB;
-        Queue<int> a = new Queue<int>(), b = new Queue<int>();
+        int[] a, b;
 
         while (!EndOfStream(secondBinaryReader))
         {
             ctrA = 0;
             ctrB = 0;
-            FillQueue(firstBinaryReader, ref a, partSize);
-            FillQueue(secondBinaryReader, ref b, partSize);
+            int aIterator = 0, bIterator = 0; 
+            a = FillDataSource(firstBinaryReader, partSize);
+            b = FillDataSource(secondBinaryReader, partSize);
             while (true)
             {
-                if (a.Peek() <= b.Peek())
+                if (a[aIterator] <= b[bIterator])
                 {
-                    binaryWriter.Write(a.Dequeue());
+                    binaryWriter.Write(a[aIterator++]);
                     ctrA++;
-                    if (a.Count == 0)
+                    if ( a.Length == aIterator)
                     {
                         if (ctrA < partSize)
                         {
-                            FillQueue(firstBinaryReader, ref a, partSize-ctrA);
+                            a = FillDataSource(firstBinaryReader, partSize - ctrA);
+                            aIterator = 0;
                         }
                         else
                         {
-                            while (b.Count > 0)
+                            while (b.Length > bIterator)
                             {
-                                binaryWriter.Write(b.Dequeue());
+                                binaryWriter.Write(b[bIterator]);
                                 ctrB++;
+                                bIterator++;
                             }
                             while (ctrB < partSize && !EndOfStream(secondBinaryReader))
                             {
-                                FillQueue(secondBinaryReader, ref b, partSize-ctrB);
-                                while (b.Count > 0)
+                                b = FillDataSource(secondBinaryReader, partSize-ctrB);
+                                bIterator = 0;
+                                while (b.Length > bIterator)
                                 {
-                                    binaryWriter.Write(b.Dequeue());
+                                    binaryWriter.Write(b[bIterator++]);
                                     ctrB++;
                                 }
                             }
@@ -84,27 +88,29 @@ public class OptimizedMergeSorter : MergeSorter
                 }
                 else
                 {
-                    binaryWriter.Write(b.Dequeue());
+                    binaryWriter.Write(b[bIterator++]);
                     ctrB++;
-                    if (b.Count == 0)
+                    if (b.Length - bIterator == 0)
                     {
                         if (ctrB < partSize && !EndOfStream(secondBinaryReader))
                         {
-                            FillQueue(secondBinaryReader, ref b, partSize-ctrB);
+                            b = FillDataSource(secondBinaryReader, partSize - ctrB);
+                            bIterator = 0;
                         }
                         else
                         {
-                            while (a.Count > 0)
+                            while (a.Length > aIterator)
                             {
-                                binaryWriter.Write(a.Dequeue());
+                                binaryWriter.Write(a[aIterator++]);
                                 ctrA++;
                             }
                             while (ctrA < partSize)
                             {
-                                FillQueue(firstBinaryReader, ref a, partSize-ctrA);
-                                while (a.Count > 0)
+                                a = FillDataSource(firstBinaryReader, partSize - ctrA);
+                                aIterator = 0;
+                                while (a.Length > aIterator)
                                 {
-                                    binaryWriter.Write(a.Dequeue());
+                                    binaryWriter.Write(a[aIterator++]);
                                     ctrA++;
                                 }
                             }
@@ -147,18 +153,18 @@ public class OptimizedMergeSorter : MergeSorter
         byte[] binData;
         for (int i = 0; i < elemNumber / _maxArraySize; i++)
         {
-            data = new int[_maxArraySize];
-            binData = binaryReader.ReadBytes(_maxArraySize * 4);
-            for (int j = 0; j < _maxArraySize; j++)
+            data = new int[_maxArraySize*2];
+            binData = binaryReader.ReadBytes(_maxArraySize * 4*2);
+            for (int j = 0; j < _maxArraySize*2; j++)
             {
                 data[j] = BitConverter.ToInt32(binData[(j*4)..((j+1)*4)]);
             }
             Array.Sort(data);
             foreach (int item in data) binaryWriter.Write(item);
         }
-        data = new int[elemNumber % _maxArraySize];
-        binData = binaryReader.ReadBytes((elemNumber % _maxArraySize)*4);
-        for (int j = 0; j < elemNumber % _maxArraySize; j++)
+        data = new int[elemNumber % (_maxArraySize*2)];
+        binData = binaryReader.ReadBytes((elemNumber % (_maxArraySize*2))*4);
+        for (int j = 0; j < elemNumber % (_maxArraySize*2); j++)
         {
             data[j] = BitConverter.ToInt32(binData[(j*4)..((j+1)*4)]);
         }
@@ -172,13 +178,16 @@ public class OptimizedMergeSorter : MergeSorter
         Console.WriteLine("Pre-sorting is done!");
     }
 
-    private void FillQueue(BinaryReader br, ref Queue<int> queue, int wantedSize)
+    private int[] FillDataSource(BinaryReader br, int wantedSize)
     {
         int count = (int)(br.BaseStream.Length - br.BaseStream.Position);
         byte[] binData = br.ReadBytes(Math.Min(Math.Min(wantedSize*4, count), _maxArraySize*4));
-        for (int i = 0; i < binData.Length/4; i++)
+        int[] data = new int[binData.Length / 4];
+        for (int i = 0; i < data.Length; i++)
         {
-            queue.Enqueue(BitConverter.ToInt32(binData[(i*4)..((i+1)*4)]));
+            data[i] = BitConverter.ToInt32(binData[(i*4)..((i+1)*4)]);
         }
+
+        return data;
     }
 }
