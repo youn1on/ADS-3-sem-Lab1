@@ -6,7 +6,7 @@ public class FileGenerator
 {
     public static void GenerateFile(int sizeInMb, string filename = "generated")
     {
-        int numberOfElements = 1048576 * sizeInMb / 4;
+        long numberOfElements = 1048576 * sizeInMb / 4;
         BinaryWriter binaryWriter = new BinaryWriter(new FileStream(filename, FileMode.Create));
         Random rand = new Random();
         for (int i = 0; i < numberOfElements; i++)

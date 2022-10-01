@@ -153,18 +153,18 @@ public class OptimizedMergeSorter : MergeSorter
         byte[] binData;
         for (int i = 0; i < elemNumber / _maxArraySize; i++)
         {
-            data = new int[_maxArraySize*2];
-            binData = binaryReader.ReadBytes(_maxArraySize * 4*2);
-            for (int j = 0; j < _maxArraySize*2; j++)
+            data = new int[_maxArraySize];
+            binData = binaryReader.ReadBytes(_maxArraySize * 4);
+            for (int j = 0; j < _maxArraySize; j++)
             {
                 data[j] = BitConverter.ToInt32(binData[(j*4)..((j+1)*4)]);
             }
             Array.Sort(data);
             foreach (int item in data) binaryWriter.Write(item);
         }
-        data = new int[elemNumber % (_maxArraySize*2)];
-        binData = binaryReader.ReadBytes((elemNumber % (_maxArraySize*2))*4);
-        for (int j = 0; j < elemNumber % (_maxArraySize*2); j++)
+        data = new int[elemNumber % _maxArraySize];
+        binData = binaryReader.ReadBytes((elemNumber % _maxArraySize)*4);
+        for (int j = 0; j < elemNumber % _maxArraySize; j++)
         {
             data[j] = BitConverter.ToInt32(binData[(j*4)..((j+1)*4)]);
         }
