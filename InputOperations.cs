@@ -1,8 +1,10 @@
-﻿namespace Lab1;
+﻿using System.Numerics;
+
+namespace Lab1;
 
 public class InputOperations
 {
-    public static int InputtedFileSize;
+    public static long InputtedFileSize;
     public static string GetFilepath()
     {
         while (true)
@@ -17,7 +19,7 @@ public class InputOperations
     private static bool ValidateFile(string filename)
     {
         FileInfo info = new FileInfo(filename);
-        InputtedFileSize = (int) info.Length / 4;
+        InputtedFileSize = info.Length / 4;
         return info.Length % 4 == 0;
     }
 }

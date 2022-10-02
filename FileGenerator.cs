@@ -1,18 +1,20 @@
-﻿using System.Text;
-
-namespace Lab1;
+﻿namespace Lab1;
 
 public class FileGenerator
 {
     public static void GenerateFile(int sizeInMb, string filename = "generated")
     {
-        long numberOfElements = 1048576 * sizeInMb / 4;
+        long numberOfElementsInOneMb = 1048576 / 4;
         BinaryWriter binaryWriter = new BinaryWriter(new FileStream(filename, FileMode.Create));
         Random rand = new Random();
-        for (int i = 0; i < numberOfElements; i++)
+        for (int i = 0; i < sizeInMb; i++)
         {
-            binaryWriter.Write(rand.Next(short.MinValue, short.MaxValue));
+            for (int j = 0; j < numberOfElementsInOneMb; j++)
+            {
+                binaryWriter.Write(rand.Next(int.MinValue, int.MaxValue));
+            }
         }
+
         binaryWriter.Close();
     }
 }

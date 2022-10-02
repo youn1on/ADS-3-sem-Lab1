@@ -1,8 +1,10 @@
-﻿namespace Lab1;
+﻿using System.Numerics;
+
+namespace Lab1;
 
 public class ClassicMergeSorter : MergeSorter
 {
-    protected override void Divide(string initialFile, int partSize, long elemNum, string firstTemporaryFile = "temp1",
+    protected override void Divide(string initialFile, long partSize, long elemNum, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2")
     {
         BinaryReader binaryReader = new BinaryReader(new FileStream(initialFile, FileMode.Open));
@@ -18,7 +20,7 @@ public class ClassicMergeSorter : MergeSorter
 
         while (!EndOfStream(binaryReader))
         {
-            binaryWriters[counter/partSize%2].Write(binaryReader.ReadInt32());
+            binaryWriters[(int)(counter/partSize%2)].Write(binaryReader.ReadInt32());
             counter++;
         }
         
@@ -30,7 +32,7 @@ public class ClassicMergeSorter : MergeSorter
         
     }
 
-    protected override void Merge(string resultingFile, int partSize, int numberOfElements, string firstTemporaryFile = "temp1",
+    protected override void Merge(string resultingFile, long partSize, long numberOfElements, string firstTemporaryFile = "temp1",
         string secondTemporaryFile = "temp2")
     {
         BinaryWriter binaryWriter = new BinaryWriter(new FileStream(resultingFile,
@@ -103,9 +105,9 @@ public class ClassicMergeSorter : MergeSorter
         File.Delete(secondTemporaryFile);
     }
 
-    public override void Sort(string filename, int elemNumber)
+    public override void Sort(string filename, long elemNumber)
     {
-        for (int i = 1; i < elemNumber; i*=2)
+        for (long i = 1; i < elemNumber; i*=2)
         {
             Divide(filename, i, elemNumber);
             Merge(filename, i, elemNumber);
