@@ -137,7 +137,7 @@ public class OptimizedMergeSorter : MergeSorter
     public override void Sort(string filename, long elemNumber)
     {
         PreSort(filename, elemNumber);
-        for (int i = _maxArraySize; i < elemNumber; i*=2)
+        for (long i = _maxArraySize; i < elemNumber; i*=2)
         {
             Divide(filename, i, elemNumber);
             Merge(filename, i, elemNumber);
@@ -153,7 +153,7 @@ public class OptimizedMergeSorter : MergeSorter
         int[] data;
         
         byte[] binData;
-        for (int i = 0; i < elemNumber / _maxArraySize; i++)
+        for (long i = 0; i < elemNumber / _maxArraySize; i++)
         {
             data = new int[_maxArraySize];
             binData = binaryReader.ReadBytes(_maxArraySize * 4);

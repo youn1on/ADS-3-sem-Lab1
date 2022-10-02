@@ -16,7 +16,7 @@ public class ClassicMergeSorter : MergeSorter
                 File.Exists(secondTemporaryFile) ? FileMode.Open : FileMode.Create))
         };
 
-        int counter = 0;
+        long counter = 0;
 
         while (!EndOfStream(binaryReader))
         {

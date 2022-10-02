@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Lab1;
+﻿namespace Lab1;
 
 public abstract class MergeSorter
 {
